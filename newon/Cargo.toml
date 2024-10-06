@@ -1,0 +1,34 @@
+[package]
+name = "newon"
+version = "1.0.1"
+authors = ["newon-team"]
+description = """
+newon's api fuzzer
+"""
+documentation = ""
+homepage = ""
+repository = ""
+keywords = ["API","security",  "CLI", "OpenAPI",  "scanning"]
+categories = ["command-line-utilities","web-programming"]
+license = "Apache-2.0"
+edition = "2021"
+default-run = "newon"
+
+
+[dependencies]
+anyhow = "1.0.66"
+thiserror = "1.0.37"
+tokio = { version = "^1.23", features = ["rt-multi-thread", "macros"]}
+clap = { version = "4.0.29", features = ["derive"] }
+const_format = "0.2.30"
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"
+cherrybomb-engine = {path = "./cherrybomb-engine"}
+serde_yaml = "^0.9.0"
+uuid = {version = "1.2.2", features = ["v4"] }
+dirs = "4.0.0"
+reqwest = { version = "^0.11",default_features = false, features = ["json","rustls-tls"] }
+comfy-table = "6.1.4"
+serde_derive = "1.0.152"
+  
+
