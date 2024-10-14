@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { exec } from 'child_process';
 
 // 명령어 실행 시 -> 자동으로 wsl 터미널 창이 뜨고 newon 명령어를 실행하게 함
 // 경로 -> wsl에 맞게 조정, newon 폴더는 newon fuzzer로 어느정도 custom한 cherrybomb fuzzer 폴더
+
 export function activate(context: vscode.ExtensionContext) {
 
     installNewon(context);
@@ -23,16 +25,39 @@ export function activate(context: vscode.ExtensionContext) {
                 const profile = message.profile;
 
                 if (specFile && profile) {
-                    const wslSpecFile = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/');
                     
-                    const terminal = vscode.window.createTerminal({
-                        name: 'WSL Newon Terminal',
-                        shellPath: 'wsl' 
-                    });
+                    // WSL이 설치되어 있는지 확인
+                    exec('wsl --version', (error, stdout, stderr) => {
+                        let terminalCommand: string;
+                        
+                        /*
+                        if (!error) {
+                            // WSL이 설치된 경우 WSL에서 명령 실행
+                            vscode.window.showErrorMessage("wsl 설치잼");
+                            const wslSpecFile = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/');
 
-                    const command = `newon --file ${wslSpecFile} --profile ${profile}`;  //profile option -> active, passive, info, normal
-                    terminal.show();  
-                    terminal.sendText(command);  
+                            const terminal = vscode.window.createTerminal({
+                                name: 'WSL Newon Terminal',
+                                //shellPath: 'wsl'  -> 잠깐 주석 처리
+                            });
+                            terminalCommand = `newon --file ${wslSpecFile} --profile ${profile}`;
+                            terminal.show();
+                            terminal.sendText(terminalCommand);
+                        }
+                        */
+                        //원래 여기else였음
+                         {
+                            vscode.window.showErrorMessage("wsl 설치안됨요");
+
+                            // WSL이 설치되지 않은 경우, 현재 쉘에서 명령 실행
+                            const terminal = vscode.window.createTerminal({
+                                name: 'Newon Terminal',
+                            });
+                            terminalCommand = `newon --file "${specFile}" --profile ${profile}`;
+                            terminal.show();
+                            terminal.sendText(terminalCommand);
+                        }
+                    });
                 } else {
                     vscode.window.showErrorMessage('Please select both a file and a profile.');
                 }
