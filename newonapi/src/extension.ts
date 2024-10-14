@@ -25,7 +25,8 @@ export function activate(context: vscode.ExtensionContext) {
                 const profile = message.profile;
 
                 if (specFile && profile) {
-                    
+                    const wslSpecFile = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/');
+
                     // WSL이 설치되어 있는지 확인
                     exec('wsl --version', (error, stdout, stderr) => {
                         let terminalCommand: string;
@@ -48,12 +49,11 @@ export function activate(context: vscode.ExtensionContext) {
                         //원래 여기else였음
                          {
                             vscode.window.showErrorMessage("wsl 설치안됨요");
-
                             // WSL이 설치되지 않은 경우, 현재 쉘에서 명령 실행
                             const terminal = vscode.window.createTerminal({
                                 name: 'Newon Terminal',
                             });
-                            terminalCommand = `newon --file "${specFile}" --profile ${profile}`;
+                            terminalCommand = `newon --file "${wslSpecFile}" --profile ${profile}`;
                             terminal.show();
                             terminal.sendText(terminalCommand);
                         }
