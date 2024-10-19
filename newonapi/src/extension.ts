@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { exec } from 'child_process';
+import { AlertsProvider, getJsonData } from './sidebar_json';
+
+
 
 // 명령어 실행 시 -> 자동으로 wsl 터미널 창이 뜨고 newon 명령어를 실행하게 함
 // 경로 -> wsl에 맞게 조정, newon 폴더는 newon fuzzer로 어느정도 custom한 cherrybomb fuzzer 폴더
@@ -65,6 +68,17 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
+
+    // 여기서부터 사이드바 관련 operations~~ 
+    const jsonData = getJsonData();
+    const alertsProvider = new AlertsProvider(jsonData);
+
+    // 사이드바 등록
+    vscode.window.createTreeView('mySidebar', {
+            treeDataProvider: alertsProvider
+        });
+
+    context.subscriptions.push(alertsProvider);
     context.subscriptions.push(disposable);
 }
 
@@ -132,5 +146,7 @@ function installNewon(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Error during Newon installation');
     }
 }
+
+
 
 export function deactivate() {}

@@ -26,7 +26,7 @@ fn verbose_print(config: &Config, required: Option<Verbosity>, message: &str) {
 }
 
 pub async fn run(config: &mut Config) -> anyhow::Result<Value> {
-    verbose_print(config, None, "Starting Cherrybomb...");
+    verbose_print(config, None, "Starting Newon Fuzzer...");
     verbose_print(config, None, "Opening OAS file...");
 
     let (oas,oas_json) = if let Some(ext)= config.file.extension(){
@@ -84,7 +84,7 @@ pub async fn run(config: &mut Config) -> anyhow::Result<Value> {
         config::Profile::OWASP => todo!("not implemented yet!"),
     }
 }
-
+//ddddddddddddddddd
 fn run_profile_info(config: &Config, oas: &OAS3_1, oas_json: &Value) -> anyhow::Result<Value> {
     // Creating parameter list
     verbose_print(config, None, "Creating param list...");

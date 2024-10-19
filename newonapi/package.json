@@ -12,6 +12,14 @@
   "activationEvents": ["onCommand:newonapi.startFuzzing"],
   "main": "./dist/extension.js",
   "contributes": {
+    "views":{
+      "My Sidebar":[
+        {
+          "id":"mySidebar",
+          "name":"My Sidebar"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "newonapi.startFuzzing",
