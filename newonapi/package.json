@@ -11,12 +11,22 @@
   ],
   "activationEvents": ["onCommand:newonapi.startFuzzing"],
   "main": "./dist/extension.js",
+
   "contributes": {
-    "views":{
-      "My Sidebar":[
+    "viewsContainers": {
+      "activitybar": [
         {
-          "id":"mySidebar",
-          "name":"My Sidebar"
+          "id": "FuzzingResultContainer",
+          "title": "Fuzzing Result",
+          "icon": "resources/fuzzing-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "fuzzingResultContainer": [
+        {
+          "id": "fuzzingResultView",
+          "name": "Fuzzing Result"
         }
       ]
     },

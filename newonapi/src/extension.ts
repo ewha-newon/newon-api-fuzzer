@@ -10,8 +10,9 @@ import { AlertsProvider, getJsonData } from './sidebar_json';
 
 export function activate(context: vscode.ExtensionContext) {
 
-    installNewon(context);
-
+    
+    //installNewon(context);
+/*
     let disposable = vscode.commands.registerCommand('newonapi.startFuzzing', () => {
         const panel = vscode.window.createWebviewPanel(
             'newonFuzzer', 
@@ -34,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
                     exec('wsl --version', (error, stdout, stderr) => {
                         let terminalCommand: string;
                         
-                        /*
+                        //원래주석
                         if (!error) {
                             // WSL이 설치된 경우 WSL에서 명령 실행
                             vscode.window.showErrorMessage("wsl 설치잼");
@@ -48,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
                             terminal.show();
                             terminal.sendText(terminalCommand);
                         }
-                        */
+                        
                         //원래 여기else였음
                          {
                             vscode.window.showErrorMessage("wsl 설치안됨요");
@@ -67,19 +68,22 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
     });
-
-
-    // 여기서부터 사이드바 관련 operations~~ 
+*/
+    // JSON 데이터와 사이드바 등록 관련 코드
+    console.log('Initializing Fuzzing Result sidebar');
     const jsonData = getJsonData();
+    vscode.window.showErrorMessage("뿅");
+    console.log('Loaded JSON data:', jsonData);
     const alertsProvider = new AlertsProvider(jsonData);
 
-    // 사이드바 등록
-    vscode.window.createTreeView('mySidebar', {
-            treeDataProvider: alertsProvider
-        });
+    // 사이드바 ID를 패키지 설정의 ID와 일치하게 등록
+    vscode.window.createTreeView('FuzzingResultView', {
+        treeDataProvider: alertsProvider
+    });
 
     context.subscriptions.push(alertsProvider);
-    context.subscriptions.push(disposable);
+
+
 }
 
 function getWebViewContent(): string {

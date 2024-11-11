@@ -27,11 +27,11 @@ fn verbose_print(config: &Config, required: Option<Verbosity>, message: &str) {
 
 pub async fn run(config: &mut Config) -> anyhow::Result<Value> {
     verbose_print(config, None, "Starting Newon Fuzzer...");
-    verbose_print(config, None, "Opening OAS file...");
+    verbose_print(config, None, "Opening OAS file..."); // OpenAPI Specification (OAS) 
 
     let (oas,oas_json) = if let Some(ext)= config.file.extension(){
         verbose_print(config, None, "Reading OAS file...");
-        let oas_file = match std::fs::read_to_string(&config.file) {
+        let oas_file = match std::fs::read_to_string(&config.file) { //string으로 변환
             Ok(file) => file,
             Err(e) => return Err(anyhow::Error::msg(format!("Error opening OAS file: {}", e))),
         };
@@ -124,7 +124,12 @@ async fn run_active_profile(
         Some(Verbosity::Debug),
         "Creating active scan struct...",
     );
+    //match: 조건문 같은 거임
+    //active_scanner:ActiveScan 구조체가 들어있는 모듈(네임스페이스)
+    //아래 코드는 ActiveScan 구조체의 new 메서드를 호출하는 부분
+    //참고로 Rust의 Ownership 때문에 clone해서 인자 넘겨주고 있음ㅇㅇ
     let mut active_scan = match active_scanner::ActiveScan::new(oas.clone(), oas_json.clone()) {
+        //match에 따라 다른 코드 실행
         Ok(scan) => scan,
         Err(e) => {
             return Err(anyhow::anyhow!("Error creating active scan struct: {}", e));

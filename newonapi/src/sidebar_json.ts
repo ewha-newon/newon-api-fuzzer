@@ -23,14 +23,13 @@ interface JsonData {
 
 class AlertTreeItem extends vscode.TreeItem {
     constructor(label: string, public alerts: Alert[]) {
-        super(label);
+        super(label, alerts.length ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
         this.tooltip = `Click to see alerts`;
+        this.contextValue = 'alertItem';
     }
-
-    contextValue = 'alertItem';
 }
 
-export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem> {
+export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem | vscode.TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<AlertTreeItem | undefined> = new vscode.EventEmitter<AlertTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<AlertTreeItem | undefined> = this._onDidChangeTreeData.event;
 
@@ -40,20 +39,28 @@ export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem> {
         this.alertsData = alertsData;
     }
 
-    getTreeItem(element: AlertTreeItem): vscode.TreeItem {
+    getTreeItem(element: AlertTreeItem | vscode.TreeItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(): AlertTreeItem[] {
-        const activeItems = Object.entries(this.alertsData.active).map(([key, alerts]) => new AlertTreeItem(key, alerts));
-        const passiveItems = Object.entries(this.alertsData.passive).map(([key, alerts]) => new AlertTreeItem(key, alerts));
-        
-        return [...activeItems, ...passiveItems];
+    getChildren(element?: AlertTreeItem): (AlertTreeItem | vscode.TreeItem)[] {
+        if (element) {
+            return element.alerts.map(alert => {
+                const alertItem = new vscode.TreeItem(`${alert.level} - ${alert.description}`);
+                alertItem.tooltip = `${alert.certainty}, Location: ${alert.location}`;
+                alertItem.description = alert.level;
+                return alertItem;
+            });
+        } else {
+            const activeItems = Object.entries(this.alertsData.active).map(([key, alerts]) => new AlertTreeItem(key, alerts));
+            const passiveItems = Object.entries(this.alertsData.passive).map(([key, alerts]) => new AlertTreeItem(key, alerts));
+            return [...activeItems, ...passiveItems];
+        }
     }
 
     // dispose 메서드 추가
     dispose(): void {
-        // 필요한 경우 리소스 해제 로직 추가
+        this._onDidChangeTreeData.dispose();
     }
 }
 
