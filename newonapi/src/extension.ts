@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
                             // WSL이 설치되지 않은 경우, 현재 쉘에서 명령 실행
                             const terminal = vscode.window.createTerminal({
                                 name: 'Newon Terminal',
-                            });
+                            }); 
                             terminalCommand = `newon --file "${wslSpecFile}" --profile ${profile}`;
                             terminal.show();
                             terminal.sendText(terminalCommand);
@@ -72,7 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
     // JSON 데이터와 사이드바 등록 관련 코드
     console.log('Initializing Fuzzing Result sidebar');
     const jsonData = getJsonData();
-    vscode.window.showErrorMessage("뿅");
     console.log('Loaded JSON data:', jsonData);
     const alertsProvider = new AlertsProvider(jsonData);
 
@@ -150,6 +149,21 @@ function installNewon(context: vscode.ExtensionContext) {
     }
 }
 
-
+function executeCommand(command: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error: ${stderr}`);
+            } else {
+                try {
+                    const jsonData = JSON.parse(stdout); // JSON 텍스트 파싱
+                    resolve(jsonData);
+                } catch (parseError) {
+                    reject(`Failed to parse JSON: ${stdout}`);
+                }
+            }
+        });
+    });
+}
 
 export function deactivate() {}
