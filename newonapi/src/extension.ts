@@ -70,8 +70,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // JSON 데이터와 사이드바 등록 관련 코드
-    console.log('Initializing Fuzzing Result sidebar');
-    const jsonData = getJsonData();
+    //console.log('Initializing Fuzzing Result sidebar');
+    
+    const jsonData = getJsonData(); //여기 부분을 getJsonData가 아니라 exec으로 퍼저 돌렸을 떄 화면에 출력되는 값
     console.log('Loaded JSON data:', jsonData);
     const alertsProvider = new AlertsProvider(jsonData);
 

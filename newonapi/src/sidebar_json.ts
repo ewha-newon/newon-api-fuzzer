@@ -19,15 +19,23 @@ class AlertTreeItem extends vscode.TreeItem {
     }
 }
 
+
+
 class AlertDetailItem extends vscode.TreeItem {
-    constructor(alertName: string, alert: Alert) {
-        super(`${alertName} - ${alert.level}`, vscode.TreeItemCollapsibleState.None);
-        this.tooltip = `Certainty: ${alert.certainty}\nLevel: ${alert.level}\nDescription: ${alert.description}\nLocation: ${alert.location}`;
-        this.description = `${alert.level} - ${alert.description}`;
+    constructor(label: string, collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Expanded) {
+        super(label, collapsibleState);
     }
 }
 
-export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem | AlertDetailItem> {
+
+class AlertPropertyItem extends vscode.TreeItem {
+    constructor(label: string, value: string) {
+        super(`${label}`, vscode.TreeItemCollapsibleState.None);
+        this.description = value;
+    }
+}
+
+export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem | AlertDetailItem | AlertPropertyItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<AlertTreeItem | undefined> = new vscode.EventEmitter<AlertTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<AlertTreeItem | undefined> = this._onDidChangeTreeData.event;
 
@@ -37,38 +45,48 @@ export class AlertsProvider implements vscode.TreeDataProvider<AlertTreeItem | A
         this.alertsData = alertsData;
     }
 
-    getTreeItem(element: AlertTreeItem | AlertDetailItem): vscode.TreeItem {
+    getTreeItem(element: AlertTreeItem | AlertDetailItem | AlertPropertyItem): vscode.TreeItem {
         return element;
     }
-
-    getChildren(element?: AlertTreeItem): (AlertTreeItem | AlertDetailItem)[] | Thenable<(AlertTreeItem | AlertDetailItem)[]> {
+    getChildren(element?: AlertTreeItem | AlertDetailItem): vscode.ProviderResult<(AlertTreeItem | AlertDetailItem | AlertPropertyItem)[]> {
         if (!element) {
             // 최상위 항목: Active와 Passive를 반환하며, 빈 배열이 아닌 항목들만 반환
             const activeItems = Object.keys(this.alertsData.active)
                 .filter(key => this.alertsData.active[key].length > 0)
                 .map(key => {
-                    const alerts = this.alertsData.active[key].map(alert => new AlertDetailItem(key, alert));
-                    return new AlertTreeItem(`${key}`, alerts, vscode.TreeItemCollapsibleState.Collapsed);
+                    const alerts = this.alertsData.active[key].map(alert => new AlertDetailItem(key, vscode.TreeItemCollapsibleState.Collapsed));
+                    return new AlertTreeItem(key, alerts, vscode.TreeItemCollapsibleState.Collapsed);
                 });
-
+                
+    
             const passiveItems = Object.keys(this.alertsData.passive)
                 .filter(key => this.alertsData.passive[key].length > 0)
                 .map(key => {
-                    const alerts = this.alertsData.passive[key].map(alert => new AlertDetailItem(key, alert));
-                    return new AlertTreeItem(`${key}`, alerts, vscode.TreeItemCollapsibleState.Collapsed);
+                    const alerts = this.alertsData.passive[key].map(alert => new AlertDetailItem(key, vscode.TreeItemCollapsibleState.Collapsed));
+                    return new AlertTreeItem(key, alerts, vscode.TreeItemCollapsibleState.Collapsed);
                 });
-
+    
             return [
                 new AlertTreeItem("Active", activeItems, vscode.TreeItemCollapsibleState.Collapsed),
                 new AlertTreeItem("Passive", passiveItems, vscode.TreeItemCollapsibleState.Collapsed)
             ];
-        } else {
-            // 하위 항목을 반환
+        } else if (element instanceof AlertTreeItem) {
+            // 최상위 Active 또는 Passive 항목의 하위 AlertDetailItem 반환
             return element.children ?? [];
+        } else if (element instanceof AlertDetailItem && typeof element.label === 'string') {
+            // element.label이 string 타입일 때만 접근
+            const alert: Alert | undefined = this.alertsData.active[element.label]?.[0] || this.alertsData.passive[element.label]?.[0];
+            if (alert) {
+                return [
+                    new AlertPropertyItem("Certainty", alert.certainty),
+                    new AlertPropertyItem("Level", alert.level),
+                    new AlertPropertyItem("Description", alert.description),
+                    new AlertPropertyItem("Location", alert.location)
+                ];
+            }
         }
+        return [];
     }
-
-    // dispose 메서드 추가
     dispose(): void {
         this._onDidChangeTreeData.dispose();
     }
