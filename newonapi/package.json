@@ -16,17 +16,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "FuzzingResultContainer",
-          "title": "Fuzzing Result",
-          "icon": "resources/fuzzing-icon.svg"
+          "id": "fuzzingResultContainer",  
+          "title": "Fuzzing Results"
         }
       ]
     },
     "views": {
       "fuzzingResultContainer": [
         {
-          "id": "fuzzingResultView",
-          "name": "Fuzzing Result"
+          "id": "FuzzingResultView",
+          "name": "Fuzzing Results"
         }
       ]
     },

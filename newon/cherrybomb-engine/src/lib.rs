@@ -26,6 +26,7 @@ fn verbose_print(config: &Config, required: Option<Verbosity>, message: &str) {
 }
 
 pub async fn run(config: &mut Config) -> anyhow::Result<Value> {
+    verbose_print(config, None, "시작하지롱");
     verbose_print(config, None, "Starting Newon Fuzzer...");
     verbose_print(config, None, "Opening OAS file..."); // OpenAPI Specification (OAS) 
 

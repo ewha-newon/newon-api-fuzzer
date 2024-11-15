@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     
     //installNewon(context);
-/*
+
     let disposable = vscode.commands.registerCommand('newonapi.startFuzzing', () => {
         const panel = vscode.window.createWebviewPanel(
             'newonFuzzer', 
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
     });
-*/
+
     // JSON 데이터와 사이드바 등록 관련 코드
     console.log('Initializing Fuzzing Result sidebar');
     const jsonData = getJsonData();
@@ -82,7 +82,6 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(alertsProvider);
-
 
 }
 
