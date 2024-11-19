@@ -211,53 +211,53 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.ViewColumn.One, 
             { enableScripts: true }
         );
+
         panel.webview.html = getWebViewContent();
+
         panel.webview.onDidReceiveMessage(message => {
             if (message.action === 'startFuzzing') {
                 const specFile = message.specFile;
                 const profile = message.profile;
 
                 if (specFile && profile) {
-                    const fullPath = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/').replace(/ /g, '\\ ');
-                    const directoryPath = path.dirname(fullPath);
-                    const fileName = fullPath.split('/').pop();
-                    
-                    var command=`cd ${directoryPath}; newon --file ./${fileName} --profile ${profile}`
-                    /*
-                    exec(`wsl bash -c '${command}'`, (error, stdout, stderr) => {
-                    //exec(`wsl bash -c '${command}'`, (error, stdout, stderr) => {
-                    
-                        if (error) {
-                            console.error(`Error executing command: ${error.message}`);
-                            return;
+                    const wslSpecFile = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/');
+
+                    // WSL이 설치되어 있는지 확인
+                    //exec('wsl --version', (error, stdout, stderr) => {
+                        let terminalCommand: string;
+                        /*
+                        //원래주석
+                        if (!error) {
+                            // WSL이 설치된 경우 WSL에서 명령 실행
+                            vscode.window.showErrorMessage("wsl 설치잼");
+                            const wslSpecFile = specFile.replace('C:', '/mnt/c').replace(/\\/g, '/');
+
+                            const terminal = vscode.window.createTerminal({
+                                name: 'WSL Newon Terminal',
+                                //shellPath: 'wsl'  -> 잠깐 주석 처리
+                            });
+                            terminalCommand = `newon --file ${wslSpecFile} --profile ${profile}`;
+                            terminal.show();
+                            terminal.sendText(terminalCommand);
                         }
-                
-                        if (stderr) {
-                            console.error(`Command error output: ${stderr}`);
-                            return;
+                        */
+                        //원래 여기else였음
+                         {
+                            vscode.window.showErrorMessage("wsl 설치안됨요");
+                            // WSL이 설치되지 않은 경우, 현재 쉘에서 명령 실행
+                            /*
+                            const terminal = vscode.window.createTerminal({
+                                name: 'Newon Terminal',
+                            }); 
+                            
+                            terminalCommand = `newon --file "${wslSpecFile}" --profile ${profile}`;
+                            terminal.show();
+                            terminal.sendText(terminalCommand); */
+                            runCommand(wslSpecFile,profile);
                         }
-                        console.log('stdout :>> ', stdout);       
-                        });
-                    */
-                    exec(`wsl bash -c '${command}'`, (error, stdout, stderr) => {
-                            //exec(`wsl bash -c '${command}'`, (error, stdout, stderr) => {
-                                console.log(stdout);
-                                // stdout에 출력된 JSON 형식의 문자열을 처리
-                                    const jsonData = getJsonData(stdout);
-                                    console.log("Parsed JSON Data:", jsonData);
-                                                                
-                                    // JSON 데이터와 사이드바 등록 관련 코드
-                                    const alertsProvider = new AlertsProvider(jsonData);
-                                    
-                                    // 사이드바 ID를 패키지 설정의 ID와 일치하게 등록
-                                    vscode.window.createTreeView('FuzzingResultView', {
-                                        treeDataProvider: alertsProvider
-                                    });
+                    //});
                 
-                                    context.subscriptions.push(alertsProvider);
                 
-                        });
-                        
                 } 
                 else {
                     vscode.window.showErrorMessage('Please select both a file and a profile.');
@@ -265,6 +265,18 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
     });
+
+    // JSON 데이터와 사이드바 등록 관련 코드
+
+    const jsonData=getJsonData(JSON.stringify(data)); //여기 부분을 getJsonData가 아니라 exec으로 퍼저 돌렸을 떄 화면에 출력되는 값
+    const alertsProvider = new AlertsProvider(jsonData);
+
+    // 사이드바 ID를 패키지 설정의 ID와 일치하게 등록
+    vscode.window.createTreeView('FuzzingResultView', {
+        treeDataProvider: alertsProvider
+    });
+
+    context.subscriptions.push(alertsProvider);
 
 }
 
@@ -332,5 +344,44 @@ function installNewon(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Error during Newon installation');
     }
 }
+
+function runCommand(specFile: string, profile: string): void {
+    const command = `wsl bash -c newon --file "${specFile}" --profile ${profile}`;
+
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing command: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            console.error(`Command error output: ${stderr}`);
+            return;
+        }
+
+    });
+
+    
+    exec(command,{ shell: "bash" }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing command: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            console.error(`Command error output: ${stderr}`);
+            return;
+        }
+
+        // stdout에 출력된 JSON 형식의 문자열을 처리
+        try {
+            const jsonData = getJsonData(stdout);
+            console.log("Parsed JSON Data:", jsonData);
+        } catch (parseError) {
+            console.error("Failed to parse JSON");
+        }
+    });
+}
+
 
 export function deactivate() {}

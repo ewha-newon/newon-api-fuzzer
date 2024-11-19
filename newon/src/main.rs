@@ -63,7 +63,7 @@ fn merge_options(conf: &mut Config, opt: &Options) {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<ExitCode> {
-    println!("{}", options::BANNER);
+    //println!("{}", options::BANNER);
     let opt = options::Options::parse();
     let mut config = if let Some(config_location) = &opt.config {
         open_config_file(config_location)?
@@ -75,14 +75,13 @@ async fn main() -> anyhow::Result<ExitCode> {
         telemetry::send(config.profile.clone(), config.verbosity.clone()).await.unwrap_or_default();
     }
     let json_val = cherrybomb_engine::run(&mut config).await?; //lib.rs에 있음
-    //println!("{}", json_val); //이런식으로 매크로로 출력해야함
+    println!("{}", json_val); //이런식으로 매크로로 출력해야함
     //println!("What's wrong?"); // 
-    //Ok(ExitCode::SUCCESS); // ExitCode 반환
-
-    
+    Ok(ExitCode::SUCCESS)// ExitCode 반환
+    /* 
     match print_tables(json_val, &opt) {
         Ok(exit_code) => Ok(exit_code),
         Err(e) => Err(anyhow::anyhow!("Error printing tables: {}", e)),
-    }
+    }*/
         
 }

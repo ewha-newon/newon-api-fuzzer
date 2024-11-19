@@ -26,26 +26,26 @@ fn verbose_print(config: &Config, required: Option<Verbosity>, message: &str) {
 }
 
 pub async fn run(config: &mut Config) -> anyhow::Result<Value> {
-    verbose_print(config, None, "시작하지롱");
-    verbose_print(config, None, "Starting Newon Fuzzer...");
-    verbose_print(config, None, "Opening OAS file..."); // OpenAPI Specification (OAS) 
+    //verbose_print(config, None, "시작하지롱");
+    //verbose_print(config, None, "Starting Newon Fuzzer...");
+    //verbose_print(config, None, "Opening OAS file..."); // OpenAPI Specification (OAS) 
 
     let (oas,oas_json) = if let Some(ext)= config.file.extension(){
-        verbose_print(config, None, "Reading OAS file...");
+        //verbose_print(config, None, "Reading OAS file...");
         let oas_file = match std::fs::read_to_string(&config.file) { //string으로 변환
             Ok(file) => file,
             Err(e) => return Err(anyhow::Error::msg(format!("Error opening OAS file: {}", e))),
         };
         let oas_json: Value = match ext.to_str() {
             Some("json") => {
-                verbose_print(config, None, "Parsing OAS file...");
+                //verbose_print(config, None, "Parsing OAS file...");
                 match serde_json::from_str(&oas_file) {
                     Ok(json) => json,
                     Err(e) => return Err(anyhow::Error::msg(format!("Error parsing OAS file: {}", e))),
                 }
             }
             Some("yaml") | Some("yml") => {
-                verbose_print(config, None, "Parsing OAS file...");
+                //verbose_print(config, None, "Parsing OAS file...");
                 match serde_yaml::from_str(&oas_file) {
                     Ok(yaml) => yaml,
                     Err(e) => return Err(anyhow::Error::msg(format!("Error parsing OAS file: {}", e))),
@@ -120,11 +120,11 @@ async fn run_active_profile(
     oas_json: &Value,
 ) -> anyhow::Result<Value> {
     // Creating active scan struct
-    verbose_print(
+    /*verbose_print(
         config,
         Some(Verbosity::Debug),
         "Creating active scan struct...",
-    );
+    );*/
     //match: 조건문 같은 거임
     //active_scanner:ActiveScan 구조체가 들어있는 모듈(네임스페이스)
     //아래 코드는 ActiveScan 구조체의 new 메서드를 호출하는 부분
@@ -138,7 +138,7 @@ async fn run_active_profile(
     };
 
     // Running active scan
-    verbose_print(config, None, "Running active scan...");
+    //verbose_print(config, None, "Running active scan...");
     let temp_auth = config.get_auth();
     let active_result: HashMap<&str, Vec<Alert>> = match config.active_checks.is_empty() {
         true => {
@@ -192,11 +192,11 @@ fn run_passive_profile(
     oas: &OAS3_1,
     oas_json: &Value,
 ) -> anyhow::Result<Value> {
-    verbose_print(
+    /*verbose_print(
         config,
         Some(Verbosity::Debug),
         "Creating passive scan struct...",
-    );
+    );*/
     // Creating passive scan struct
     let mut passive_scan = passive_scanner::PassiveSwaggerScan {
         swagger: oas.clone(),
@@ -206,7 +206,7 @@ fn run_passive_profile(
     };
 
     // Running passive scan
-    verbose_print(config, None, "Running passive scan...");
+    //verbose_print(config, None, "Running passive scan...");
 
     let passive_result: HashMap<&str, Vec<Alert>> = match config.passive_checks.is_empty() {
         true => {
